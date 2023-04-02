@@ -1,0 +1,12 @@
+{
+  "ID": "f088b0f1-9514-487b-bf6a-ba46e1b15780",
+  "ActionKeyword": "reg",
+  "Name": "Windows Registry",
+  "Description": "Browser Windows Registry",
+  "Author": "WayneFerdon",
+  "Version": "1.0.0",
+  "Language": "python",
+  "Website": "https://github.com/wayneferdon",
+  "IcoPath": "./Images/Registry.png",
+  "ExecuteFileName": "main.py"
+}
