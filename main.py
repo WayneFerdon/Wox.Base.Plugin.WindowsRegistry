@@ -2,7 +2,7 @@
 # Author: WayneFerdon wayneferdon@hotmail.com
 # Date: 2023-04-02 11:57:59
 # LastEditors: WayneFerdon wayneferdon@hotmail.com
-# LastEditTime: 2023-04-03 07:26:29
+# LastEditTime: 2023-04-04 17:32:25
 # FilePath: \Wox.Base.Plugin.WindowsRegistry\main.py
 # ----------------------------------------------------------------
 # Copyright (c) 2023 by Wayne Ferdon Studio. All rights reserved.
@@ -67,27 +67,28 @@ class WindowsRegedit(Query):
                 subPath = "\\".join([subKeyName[1:-1]])
             else:
                 subPath = "\\".join([subKey, subKeyName[1:-1]])
-            try:
-                results.append(self.GetQueryResult(root, subPath))
-            except Exception as e:
-                results.append(self.GetExceptionResult(root, subPath, e))
-                pass
+            results.append(self.GetQueryResult(root, subPath))
         return results
 
-    def GetQueryResult(self, rootKey:str, subKey:str):
-        a = ConnectRegistry(None,WindowsRegedit.REG_ROOTS[rootKey])
-        subKeyHandle = OpenKey(a, subKey,access=KEY_ALL_ACCESS)
-        subCount, valueCount, _ = QueryInfoKey(subKeyHandle)
-        fullKey = rootKey
-        if subKey != '':
-            fullKey = fullKey + '\\' + subKey
-        subtitle = 'Sub keys:' + str(subCount) +' - Values:' + str(valueCount)
-        return QueryResult(fullKey,subtitle,ICON,fullKey,Launcher.GetAPIName(Launcher.API.ChangeQuery), False,WindowsRegedit.__actionKeyword__ + ' ' + fullKey + '\\',True).toDict()
+    def GetQueryResult(self, root:str, sub:str):
+        try:
+            a = ConnectRegistry(None,WindowsRegedit.REG_ROOTS[root])
+            subKeyHandle = OpenKey(a, sub,access=KEY_ALL_ACCESS)
+            subCount, valueCount, _ = QueryInfoKey(subKeyHandle)
+            full = root
+            if sub != '':
+                full = full + '\\' + sub
+            subtitle = 'Sub keys:' + str(subCount) +' - Values:' + str(valueCount)
+            return QueryResult(full,subtitle,ICON,full,Launcher.GetAPI(Launcher.API.ChangeQuery), False,WindowsRegedit.__actionKeyword__ + ' ' + full + '\\',True).toDict()
+        except Exception as e:
+            return self.GetExceptionResult(root, sub, e)
         
     
-    def GetExceptionResult(self, root:str, subKey:str, e:Exception):
-        fullKey = root+'\\'+subKey
-        return QueryResult(fullKey, str(e), ICON, fullKey, None, False).toDict()
+    def GetExceptionResult(self, root:str, sub:str, e:Exception):
+        full = root
+        if sub != '':
+            full = full + '\\' + sub
+        return QueryResult(full, str(e), ICON, full, None, False).toDict()
 
     def context_menu(self, fullKey:str): 
         results = list()
