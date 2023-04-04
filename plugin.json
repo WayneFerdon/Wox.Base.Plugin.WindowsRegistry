@@ -6,7 +6,7 @@
   "Author": "WayneFerdon",
   "Version": "1.0.0",
   "Language": "python",
-  "Website": "https://github.com/wayneferdon",
+  "Website": "https://github.com/wayneferdon/Wox.Base.Plugin.WindowsRegistry",
   "IcoPath": "./Images/Registry.png",
   "ExecuteFileName": "main.py"
 }
