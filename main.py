@@ -2,8 +2,8 @@
 # Author: WayneFerdon wayneferdon@hotmail.com
 # Date: 2023-04-02 11:57:59
 # LastEditors: WayneFerdon wayneferdon@hotmail.com
-# LastEditTime: 2023-04-04 17:32:25
-# FilePath: \Wox.Base.Plugin.WindowsRegistry\main.py
+# LastEditTime: 2023-04-05 05:20:32
+# FilePath: \Plugins\Wox.Base.Plugin.WindowsRegistry\main.py
 # ----------------------------------------------------------------
 # Copyright (c) 2023 by Wayne Ferdon Studio. All rights reserved.
 # Licensed to the .NET Foundation under one or more agreements.
@@ -19,9 +19,7 @@ from WoxPluginBase_Query import *
 
 ICON = './Images/Registry.png'
 
-class WindowsRegedit(Query):
-    __actionKeyword__ = None
-
+class WindowsRegedit(QueryPlugin):
     REG_ROOTS = {
         'HKEY_CLASSES_ROOT':HKEY_CLASSES_ROOT,
         'HKEY_CURRENT_CONFIG':HKEY_CURRENT_CONFIG,
@@ -33,10 +31,6 @@ class WindowsRegedit(Query):
         # 'HKEY_DYN_DATA':HKEY_DYN_DATA
     }
     def query(self, query:str):
-        if WindowsRegedit.__actionKeyword__ is None:
-            with(open('./plugin.json','r') as pluginJson):
-                WindowsRegedit.__actionKeyword__ = WindowsRegedit.GetActionKeyword(json.load(pluginJson)['ID'])
-
         splited = repr(query)[1:-1].split('\\\\')
         if splited.count('') > 1:
             return None
@@ -48,16 +42,16 @@ class WindowsRegedit(Query):
                     continue
                 if root.lower() not in rootKeyName.lower():
                     continue
-                results.append(self.GetQueryResult(rootKeyName,''))
+                results.append(self.getQueryResult(rootKeyName,''))
             return results
         
         if root not in WindowsRegedit.REG_ROOTS.keys():
             return None
         subKey = r'\\'.join(splited[1:-1]).replace('\\\\','\\')
         keyHandle = OpenKey(ConnectRegistry(None,WindowsRegedit.REG_ROOTS[root]), subKey, access=KEY_ALL_ACCESS)
-        count,_,_ = QueryInfoKey(keyHandle)
+        count, _, _ = QueryInfoKey(keyHandle)
         if count == 0:
-            results.append(self.GetQueryResult(root, subKey))
+            results.append(self.getQueryResult(root, subKey))
         last = splited[-1]
         for i in range(count):
             subKeyName = repr(EnumKey(keyHandle, i))
@@ -67,10 +61,10 @@ class WindowsRegedit(Query):
                 subPath = "\\".join([subKeyName[1:-1]])
             else:
                 subPath = "\\".join([subKey, subKeyName[1:-1]])
-            results.append(self.GetQueryResult(root, subPath))
+            results.append(self.getQueryResult(root, subPath))
         return results
 
-    def GetQueryResult(self, root:str, sub:str):
+    def getQueryResult(self, root:str, sub:str):
         try:
             a = ConnectRegistry(None,WindowsRegedit.REG_ROOTS[root])
             subKeyHandle = OpenKey(a, sub,access=KEY_ALL_ACCESS)
@@ -79,12 +73,11 @@ class WindowsRegedit(Query):
             if sub != '':
                 full = full + '\\' + sub
             subtitle = 'Sub keys:' + str(subCount) +' - Values:' + str(valueCount)
-            return QueryResult(full,subtitle,ICON,full,Launcher.GetAPI(Launcher.API.ChangeQuery), False,WindowsRegedit.__actionKeyword__ + ' ' + full + '\\',True).toDict()
+            return QueryResult(full,subtitle,ICON,full,Launcher.API.ChangeQuery.name, False, Plugin.actionKeyword + ' ' + full + '\\',True).toDict()
         except Exception as e:
-            return self.GetExceptionResult(root, sub, e)
+            return self.getExceptionResult(root, sub, e)
         
-    
-    def GetExceptionResult(self, root:str, sub:str, e:Exception):
+    def getExceptionResult(self, root:str, sub:str, e:Exception):
         full = root
         if sub != '':
             full = full + '\\' + sub
