@@ -2,8 +2,8 @@
 # Author: WayneFerdon wayneferdon@hotmail.com
 # Date: 2023-04-02 11:57:59
 # LastEditors: WayneFerdon wayneferdon@hotmail.com
-# LastEditTime: 2023-04-05 05:20:32
-# FilePath: \Plugins\Wox.Base.Plugin.WindowsRegistry\main.py
+# LastEditTime: 2023-04-09 21:35:02
+# FilePath: \undefinedc:\Users\WayneFerdon\AppData\Roaming\FlowLauncher\Plugins\Wox.Base.Plugin.WindowsRegistry\main.py
 # ----------------------------------------------------------------
 # Copyright (c) 2023 by Wayne Ferdon Studio. All rights reserved.
 # Licensed to the .NET Foundation under one or more agreements.
@@ -13,11 +13,22 @@
 
 import os, sys
 import json
+import ctypes
 from winreg import *
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from WoxPluginBase_Query import *
 
 ICON = './Images/Registry.png'
+
+def is_admin():
+    '''
+    Checks if the script is running with administrative privileges.
+    Returns True if is running as admin, False otherwise.
+    '''    
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
 
 class WindowsRegedit(QueryPlugin):
     REG_ROOTS = {
@@ -73,7 +84,7 @@ class WindowsRegedit(QueryPlugin):
             if sub != '':
                 full = full + '\\' + sub
             subtitle = 'Sub keys:' + str(subCount) +' - Values:' + str(valueCount)
-            return QueryResult(full,subtitle,ICON,full,Launcher.API.ChangeQuery.name, False, Plugin.actionKeyword + ' ' + full + '\\',True).toDict()
+            return QueryResult(full,subtitle,ICON,full, LauncherAPI.ChangeQuery.name, False, Plugin.actionKeyword + ' ' + full + '\\',True).toDict()
         except Exception as e:
             return self.getExceptionResult(root, sub, e)
         
