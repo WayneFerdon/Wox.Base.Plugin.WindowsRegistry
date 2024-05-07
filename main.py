@@ -15,7 +15,7 @@ import os, sys
 import ctypes
 from winreg import *
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-from WoxPluginBase_Query import *
+from WoxBasePluginQuery import *
 
 def is_admin():
     '''
